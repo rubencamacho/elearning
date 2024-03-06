@@ -68,7 +68,7 @@ class User extends Authenticatable
         return $builder->where('role_id', Role::STUDENT);
     }
 
-    public function scopeTeacher(Builder $builder): Builder
+    public function scopeTeachers(Builder $builder): Builder
     {
         return $builder->where('role_id', Role::TEACHER);
     }
