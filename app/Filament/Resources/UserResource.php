@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
+use App\Models\Role;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\Checkbox;
@@ -13,6 +14,10 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Hash;
 
@@ -83,10 +88,35 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                //
+                ImageColumn::make('avatar')
+                    ->label(__('Avatar')),
+                TextColumn::make('name')
+                    ->label(__('Nombre'))
+                    ->sortable()
+                    ->searchable()
+                    ->description(fn (User $user) => $user->email),
+                TextColumn::make('role_id')
+                    ->label(__('Role'))
+                    ->sortable()
+                    ->badge()
+                    ->state(fn (User $user) => $user->role->description)
+                    ->color(fn (User $user) => match ($user->role_id) {
+                        Role::ADMIN => 'danger',
+                        Role::TEACHER => 'warning',
+                        Role::STUDENT => 'success',
+                    }),
+                ToggleColumn::make('active')
+                    ->label(__('Activo'))
+                    ->sortable(),
+                TextColumn::make('created_at')
+                    ->label(__('Creado'))
+                    ->sortable()
+                    ->date('d/m/Y H:i'),
             ])
             ->filters([
-                //
+                SelectFilter::make('role_id')
+                    ->label(__('Role'))
+                    ->options(Role::pluck('description', 'id')->toArray()),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
