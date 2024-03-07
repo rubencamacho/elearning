@@ -20,6 +20,9 @@ use Filament\Forms\Form;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 
@@ -178,7 +181,33 @@ class CourseResource extends Resource
     {
         return $table
             ->columns([
-                //
+                ImageColumn::make('image')
+                    ->label(__('Imagen')),
+                TextColumn::make('name')
+                    ->label(__('Nombre'))
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('teacher.name')
+                    ->label(__('Profesor'))
+                    ->searchable()
+                    ->sortable(),
+                ToggleColumn::make('published')
+                    ->label(__('Publicado'))
+                    ->sortable(),
+                ToggleColumn::make('featured')
+                    ->label(__('Destacado'))
+                    ->sortable(),
+                TextColumn::make('units_count')
+                    ->label(__('Unidades'))
+                    ->sortable()
+                    ->alignCenter()
+                    ->badge()
+                    ->color('success')
+                    ->counts('units'),
+                TextColumn::make('created_at')
+                    ->label(__('Creado'))
+                    ->date('d/m/Y H:i')
+                    ->sortable(),
             ])
             ->filters([
                 //
@@ -190,7 +219,11 @@ class CourseResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ])
+            ->emptyStateActions([
+                Tables\Actions\CreateAction::make(),
             ]);
+            
     }
 
     public static function getRelations(): array
