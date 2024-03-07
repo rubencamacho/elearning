@@ -10,6 +10,7 @@ use Filament\Forms;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -113,7 +114,59 @@ class CourseResource extends Resource
                         ]),
                     Step::make(__('Unidades'))
                         ->schema([
-                            
+                            Repeater::make('units')
+                                ->relationship()
+                                ->label(__('Unidades'))
+                                ->addActionLabel(__('Agregar Unidad'))
+                                ->itemLabel(fn (array $state): ?string => $state['name'] ?? null)
+                                ->reorderableWithButtons()
+                                ->collapsible()
+                                ->cloneable()
+                                ->orderColumn()
+                                ->schema([
+                                    Grid::make()
+                                        ->schema([
+                                            TextInput::make('name')
+                                                ->label(__('Nombre'))
+                                                ->autofocus()
+                                                ->minLength(6)
+                                                ->maxLength(200)
+                                                ->unique(static::getModel(), 'name', ignoreRecord: true)
+                                                ->live(debounce: 500)
+                                                ->afterStateUpdated(function (Set $set, ?string $old, ?string $state){
+                                                    $set('slug', Str::slug($state));  
+                                                })
+                                                ->required(),
+                                            TextInput::make('slug')
+                                                ->label(__('Slug')),
+                                        ]),
+                                    RichEditor::make('content')
+                                        ->toolbarButtons([
+                                            'attachFiles',
+                                            'blockquote',
+                                            'bold',
+                                            'bulletList',
+                                            'codeBlock',
+                                            'h2',
+                                            'h3',
+                                            'italic',
+                                            'link',
+                                            'orderedList',
+                                            'redo',
+                                            'strike',
+                                            'undo'
+                                            
+                                        ])
+                                        ->label(__('Contenido de la unidad'))
+                                        ->required()
+                                        ->minLength(10)
+                                        ->maxLength(5000)
+                                        ->columnSpanFull(),
+                                    Checkbox::make('published')
+                                        ->label(__('Publicado')),
+                                    Checkbox::make('featured')
+                                        ->label(__('Gratuito')),
+                                ]),
                         ]),
                 ])
                     ->columnSpanFull()
